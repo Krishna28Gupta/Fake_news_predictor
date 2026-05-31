@@ -113,19 +113,25 @@ jupyter notebook Fake_news_predictor.ipynb
 ## 🧪 Sample Prediction
 
 ```python
-import joblib, re
+import  re
 
-tfidf = joblib.load("tfidf_vectorizer.pkl")
-model = joblib.load("best_model.pkl")
 
 def predict_news(text):
     text = text.lower()
+    text = re.sub(r'\[.*?\]', '', text)
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
     text = re.sub(r'[^a-z\s]', '', text)
-    vector = tfidf.transform([text])
-    result = model.predict(vector)[0]
-    return "🚨 FAKE NEWS" if result == 1 else "✅ REAL NEWS"
+    text = re.sub(r'\s+', ' ', text).strip()
 
-predict_news("Scientists discover vaccine that cures all diseases overnight")
+    vector = tfidf.transform([text])
+    prediction = lr.predict(vector)[0]
+    confidence = lr.predict_proba(vector)[0][prediction] * 100
+
+    label = "🚨 FAKE NEWS" if prediction == 1 else "✅ REAL NEWS"
+    print(f"Prediction  : {label}")
+    print(f"Confidence  : {confidence:.2f}%")
+
+predict_news("Scientists discover new vaccine that cures all diseases overnight")
 # Output: 🚨 FAKE NEWS
 ```
 
